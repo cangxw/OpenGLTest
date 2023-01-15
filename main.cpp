@@ -15,6 +15,7 @@
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 
 int main(void)
 {
@@ -59,10 +60,10 @@ int main(void)
         
     float position[] =
     {
-        -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f, 0.5f,
-        -0.5f, 0.5f
+        -0.5f, -0.5f,0.0f, 0.0f,
+        0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.0f, 1.0f
     };
     
     unsigned int indices[] =
@@ -77,10 +78,14 @@ int main(void)
 //    glGenVertexArrays(1, &VAO);
 //    glBindVertexArray(VAO);
     
+    GLCall(glEnable(GL_BLEND));
+    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    
     VertexArray va;
-    VertexBuffer vb(position, 4 * 2 * sizeof(float));
+    VertexBuffer vb(position, 4 * 4 * sizeof(float));
     VertexBufferLayout layout;
-    layout.Push<float>(2);
+    layout.Push<float>(2); //顶点位置
+    layout.Push<float>(2); //纹理坐标
     va.AddBuffer(vb, layout);
     
     
@@ -100,9 +105,13 @@ int main(void)
     IndexBuffer ib(indices, 6);
     
     //加载Shader
-    Shader shader("res/shaders/Basic.shader");
+    Shader shader("resources/shaders/Basic.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 1.0f);
+    
+    Texture texture("resources/textures/test.png");
+    texture.Bind();
+    shader.SetUniform1i("u_Texture", 0);
     
     va.UnBind();
     //解绑shader
